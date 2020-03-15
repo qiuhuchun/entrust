@@ -1,0 +1,60 @@
+{
+    "name": "qiuhuchun/entrust",
+    "description": "This package provides a flexible way to add Role-based Permissions to Laravel",
+    "keywords": ["laravel","illuminate","auth","roles","acl","permission"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Zizaco Zizuini",
+            "email": "zizaco@gmail.com"
+        },
+        {
+            "name": "Andrew Elkins",
+            "homepage": "http://andrewelkins.com"
+        },
+        {
+            "name": "Ben Batschelet",
+            "homepage": "http://github.com/bbatsche"
+        },
+        {
+            "name": "Michele Angioni",
+            "email": "michele.angioni@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2.0",
+        "illuminate/console": "7.x-dev",
+        "illuminate/support": "7.x-dev",
+        "illuminate/cache": "7.x-dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "8.5-dev",
+        "mockery/mockery": "1.3.x-dev",
+        "illuminate/database": "7.x-dev",
+        "sami/sami": "dev-master"
+    },
+    "autoload": {
+        "classmap": [
+            "src/commands"
+        ],
+        "psr-4": {
+            "Qiuhuchun\\Entrust\\": "src/Entrust/"
+        }
+    },
+    "extra":{
+        "laravel":{
+            "providers":[
+                "Qiuhuchun\\Entrust\\EntrustServiceProvider"
+            ],
+            "aliases":{
+                "Entrust": "Qiuhuchun\\Entrust\\EntrustFacade"
+            }
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/Middleware/MiddlewareTest.php"
+        ]
+    },
+    "minimum-stability": "dev"
+}
