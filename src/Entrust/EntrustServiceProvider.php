@@ -100,7 +100,7 @@ class EntrustServiceProvider extends ServiceProvider
             return new Entrust($app);
         });
 
-        $this->app->alias('entrust', 'Zizaco\Entrust\Entrust');
+        $this->app->alias('entrust', 'Qiuhuchun\Entrust\Entrust');
     }
 
     /**

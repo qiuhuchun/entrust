@@ -12,6 +12,7 @@ use Illuminate\Cache\TaggableStore;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use InvalidArgumentException;
+use Illuminate\Support\Str;
 
 trait EntrustUserTrait
 {
@@ -31,7 +32,7 @@ trait EntrustUserTrait
         }
         else return $this->roles()->get();
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -42,7 +43,7 @@ trait EntrustUserTrait
         }
         return parent::save($options);
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -54,7 +55,7 @@ trait EntrustUserTrait
         }
         return $result;
     }
-
+    
     /**
      * {@inheritDoc}
      */
@@ -66,7 +67,7 @@ trait EntrustUserTrait
         }
         return $result;
     }
-
+    
     /**
      * Many-to-Many relations with Role.
      *
@@ -76,7 +77,7 @@ trait EntrustUserTrait
     {
         return $this->belongsToMany(Config::get('entrust.role'), Config::get('entrust.role_user_table'), Config::get('entrust.user_foreign_key'), Config::get('entrust.role_foreign_key'));
     }
-
+    
     /**
      * Boot the user model
      * Attach event listener to remove the many-to-many records when trying to delete
@@ -87,16 +88,16 @@ trait EntrustUserTrait
     public static function boot()
     {
         parent::boot();
-
+        
         static::deleting(function($user) {
             if (!method_exists(Config::get('auth.providers.users.model'), 'bootSoftDeletes')) {
                 $user->roles()->sync([]);
             }
-
+            
             return true;
         });
     }
-
+    
     /**
      * Checks if the user has a role by its name.
      *
@@ -110,14 +111,14 @@ trait EntrustUserTrait
         if (is_array($name)) {
             foreach ($name as $roleName) {
                 $hasRole = $this->hasRole($roleName);
-
+                
                 if ($hasRole && !$requireAll) {
                     return true;
                 } elseif (!$hasRole && $requireAll) {
                     return false;
                 }
             }
-
+            
             // If we've made it this far and $requireAll is FALSE, then NONE of the roles were found
             // If we've made it this far and $requireAll is TRUE, then ALL of the roles were found.
             // Return the value of $requireAll;
@@ -129,10 +130,10 @@ trait EntrustUserTrait
                 }
             }
         }
-
+        
         return false;
     }
-
+    
     /**
      * Check if user has a permission by its name.
      *
@@ -146,32 +147,33 @@ trait EntrustUserTrait
         if (is_array($permission)) {
             foreach ($permission as $permName) {
                 $hasPerm = $this->can($permName);
-
+                
                 if ($hasPerm && !$requireAll) {
                     return true;
                 } elseif (!$hasPerm && $requireAll) {
                     return false;
                 }
             }
-
+            
             // If we've made it this far and $requireAll is FALSE, then NONE of the perms were found
             // If we've made it this far and $requireAll is TRUE, then ALL of the perms were found.
             // Return the value of $requireAll;
             return $requireAll;
         } else {
+            
             foreach ($this->cachedRoles() as $role) {
                 // Validate against the Permission table
                 foreach ($role->cachedPermissions() as $perm) {
-                    if (str_is( $permission, $perm->name) ) {
+                    if (Str::is( $permission, $perm->name) ) {
                         return true;
                     }
                 }
             }
         }
-
+        
         return false;
     }
-
+    
     /**
      * Checks role(s) and permission(s).
      *
@@ -192,7 +194,7 @@ trait EntrustUserTrait
         if (!is_array($permissions)) {
             $permissions = explode(',', $permissions);
         }
-
+        
         // Set up default values and validate options.
         if (!isset($options['validate_all'])) {
             $options['validate_all'] = false;
@@ -207,10 +209,10 @@ trait EntrustUserTrait
             if ($options['return_type'] != 'boolean' &&
                 $options['return_type'] != 'array' &&
                 $options['return_type'] != 'both') {
-                throw new InvalidArgumentException();
-            }
+                    throw new InvalidArgumentException();
+                }
         }
-
+        
         // Loop through roles and permissions and check each.
         $checkedRoles = [];
         $checkedPermissions = [];
@@ -220,28 +222,28 @@ trait EntrustUserTrait
         foreach ($permissions as $permission) {
             $checkedPermissions[$permission] = $this->can($permission);
         }
-
+        
         // If validate all and there is a false in either
         // Check that if validate all, then there should not be any false.
         // Check that if not validate all, there must be at least one true.
         if(($options['validate_all'] && !(in_array(false,$checkedRoles) || in_array(false,$checkedPermissions))) ||
             (!$options['validate_all'] && (in_array(true,$checkedRoles) || in_array(true,$checkedPermissions)))) {
-            $validateAll = true;
-        } else {
-            $validateAll = false;
-        }
-
-        // Return based on option
-        if ($options['return_type'] == 'boolean') {
-            return $validateAll;
-        } elseif ($options['return_type'] == 'array') {
-            return ['roles' => $checkedRoles, 'permissions' => $checkedPermissions];
-        } else {
-            return [$validateAll, ['roles' => $checkedRoles, 'permissions' => $checkedPermissions]];
-        }
-
+                $validateAll = true;
+            } else {
+                $validateAll = false;
+            }
+            
+            // Return based on option
+            if ($options['return_type'] == 'boolean') {
+                return $validateAll;
+            } elseif ($options['return_type'] == 'array') {
+                return ['roles' => $checkedRoles, 'permissions' => $checkedPermissions];
+            } else {
+                return [$validateAll, ['roles' => $checkedRoles, 'permissions' => $checkedPermissions]];
+            }
+            
     }
-
+    
     /**
      * Alias to eloquent many-to-many relation's attach() method.
      *
@@ -252,14 +254,14 @@ trait EntrustUserTrait
         if(is_object($role)) {
             $role = $role->getKey();
         }
-
+        
         if(is_array($role)) {
             $role = $role['id'];
         }
-
+        
         $this->roles()->attach($role);
     }
-
+    
     /**
      * Alias to eloquent many-to-many relation's detach() method.
      *
@@ -270,14 +272,14 @@ trait EntrustUserTrait
         if (is_object($role)) {
             $role = $role->getKey();
         }
-
+        
         if (is_array($role)) {
             $role = $role['id'];
         }
-
+        
         $this->roles()->detach($role);
     }
-
+    
     /**
      * Attach multiple roles to a user
      *
@@ -289,7 +291,7 @@ trait EntrustUserTrait
             $this->attachRole($role);
         }
     }
-
+    
     /**
      * Detach multiple roles from a user
      *
@@ -298,14 +300,14 @@ trait EntrustUserTrait
     public function detachRoles($roles=null)
     {
         if (!$roles) $roles = $this->roles()->get();
-
+        
         foreach ($roles as $role) {
             $this->detachRole($role);
         }
     }
-
+    
     /**
-     *Filtering users according to their role 
+     *Filtering users according to their role
      *
      *@param string $role
      *@return users collection
@@ -317,5 +319,5 @@ trait EntrustUserTrait
             $query->where('name', $role);
         });
     }
-
+    
 }

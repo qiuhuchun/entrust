@@ -8,8 +8,8 @@
  * @package Zizaco\Entrust
  */
 
-use Zizaco\Entrust\Contracts\EntrustPermissionInterface;
-use Zizaco\Entrust\Traits\EntrustPermissionTrait;
+use Qiuhuchun\Entrust\Contracts\EntrustPermissionInterface;
+use Qiuhuchun\Entrust\Traits\EntrustPermissionTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Config;
 
